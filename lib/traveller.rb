@@ -17,14 +17,18 @@ class Traveller
     # Begin parsing
     @zip = parse_zip
 
-    if (@input.include? ',')
+    if @input.include?(',')
       city_st = @input.split(',').map(&:strip)
-      parse_city_from(city_st[0])
-      parse_state_from(city_st[1])
-    else
-      tokens = @input.split(' ')
-      rough_parse(tokens)
+
+      if city_st.length == 2
+        parse_city_from(city_st[0])
+        parse_state_from(city_st[1])
+        return
+      end
     end
+
+    tokens = @input.split(' ')
+    rough_parse(tokens)
   end
 
   def parse_zip
