@@ -95,30 +95,38 @@ class Traveller
   def check_three_word_states(tokens)
     token_str = tokens.join(' ')
     three_word_states = ['district of columbia']
+    three_word_provinces = ['newfoundland & labrador', 'prince edward island']
+    three_word_states += three_word_provinces
     three_word_states.find { |s| s == token_str }
   end
 
   def check_two_word_states(tokens)
     token_str = tokens.join(' ')
     two_word_states = ['new hampshire', 'new jersey', 'new mexico', 'new york', 'north carolina', 'north dakota', 'puerto rico', 'rhode island', 'south carolina', 'south dakota', 'west virginia' ]
+    two_word_provinces = ['british columbia', 'new brunswick', 'nova scotia', 'northwest territories']
+    two_word_states += two_word_provinces
     two_word_states.find { |s| s == token_str }
   end
 
   def check_one_word_states(tokens)
     token_str = tokens.join(' ')
     one_word_states = ['alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado', 'connecticut', 'delaware', 'florida', 'georgia', 'hawaii', 'idaho', 'illinois', 'indiana', 'iowa', 'kansas', 'kentucky', 'louisiana', 'maine', 'maryland', 'massachusetts', 'michigan', 'minnesota', 'mississippi', 'missouri', 'montana',  'nebraska', 'nevada', 'ohio', 'oklahoma', 'oregon', 'pennsylvania', 'tennessee', 'texas', 'utah', 'vermont', 'virginia', 'washington', 'wisconsin', 'wyoming']
+    one_word_provinces = ['alberta', 'manitoba', 'nunavut', 'ontario', 'quebec', 'saskatchewan', 'yukon']
+    one_word_states += one_word_provinces
     one_word_states.find { |s| s == token_str }
   end
 
   def check_abbreviations(tokens)
     token_str = tokens.join(' ')
-    abbreviations = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'dc', 'fl', 'ga', 'hi', 'id', 'il', 'in', 'ia', 'ks', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'pr', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 'va', 'wa', 'wv', 'wi', 'wy']
+    state_abbreviations = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'dc', 'fl', 'ga', 'hi', 'id', 'il', 'in', 'ia', 'ks', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'pr', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 'va', 'wa', 'wv', 'wi', 'wy']
+    province_abbreviations = ["ab", "bc", "mb", "nb", "nl", "ns", "nt", "nu", "on", "pe", "qc", "sk", "yt"]
+    abbreviations = state_abbreviations + province_abbreviations
     abbreviations.find { |s| s == token_str }
   end
 
   private
 
-  def state_to_abbreviation_mappings
+  def us_state_to_abbreviation_mappings
     { 'alabama' => 'al', 'alaska' => 'ak', 'america samoa' => 'as', 'arizona' => 'az', 'arkansas' => 'ar', 'california' => 'ca', 'colorado' => 'co', 'connecticut' => 'ct',
       'delaware' => 'de', 'district of columbia' => 'dc', 'micronesia1' => 'fm', 'florida' => 'fl', 'georgia' => 'ga', 'guam' => 'gu', 'hawaii' => 'hi', 'idaho' => 'id',
       'illinois' => 'il', 'indiana' => 'in', 'iowa' => 'ia', 'kansas' => 'ks', 'kentucky' => 'ky', 'louisiana' => 'la', 'maine' => 'me', 'marshall isands' => 'mh',
@@ -127,6 +135,18 @@ class Traveller
       'ohio' => 'oh', 'oklahoma' => 'ok', 'oregon' => 'or', 'palau' => 'pw', 'pennsylvania' => 'pa', 'puerto rico' => 'pr', 'rhode island' => 'ri', 'south carolina' => 'sc',
       'south dakota' => 'sd', 'tennessee' => 'tn', 'texas' => 'tx', 'utah' => 'ut', 'vermont' => 'vt', 'virgin island' => 'vi', 'virginia' => 'va', 'washington' => 'wa',
       'west virginia' => 'wv', 'wisconsin' => 'wi', 'wyoming' => 'wy' }
+  end
+
+  def province_to_abbreviation_mappings
+    {
+      'alberta': 'ab', 'british columbia': 'bc', 'manitoba': 'mb', 'new brunswick': 'nb', 'newfoundland & labrador': 'nl',
+      'nova scotia': 'ns', 'northwest territories': 'nt', 'nunavut': 'nu', 'ontario': 'on',
+      'prince edward island': 'pe', 'quebec': 'qc', 'saskatchewan': 'sk', 'yukon': 'yt'
+    }
+  end
+
+  def state_to_abbreviation_mappings
+    us_state_to_abbreviation_mappings.merge(province_to_abbreviation_mappings)
   end
 
   def convert_abbreviation_to_state(abbreviation)
