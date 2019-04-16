@@ -32,9 +32,20 @@ class Traveller
   end
 
   def parse_zip
-    zip = @input[/\b([0-9]{5})|([abceghjklmnprstvxy]\d[abceghjklmnprstvwxyz]( )?\d[abceghjklmnprstvwxyz]\d)\b/]
-    @input.sub!(zip, '') unless zip.nil?
+    zip = parse_us_zip
+    zip = parse_canadian_zip if zip.nil?
+    @input.sub!(zip, '') if zip.present?
     zip
+  end
+
+  def parse_us_zip
+    us_zip_regex = /\b([0-9]{5})\b/.freeze
+    @input[us_zip_regex]
+  end
+
+  def parse_canadian_zip
+    can_zip_regex = /\b([abceghjklmnprstvxy]\d[abceghjklmnprstvwxyz]( )?\d[abceghjklmnprstvwxyz]\d)\b/.freeze
+    @input[can_zip_regex]
   end
 
   def parse_city_from(str)
