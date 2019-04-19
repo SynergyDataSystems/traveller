@@ -32,9 +32,20 @@ class Traveller
   end
 
   def parse_zip
-    zip = @input[/\b([0-9]{5})\b/]
-    @input.sub!(zip, '') unless zip.nil?
+    zip = parse_us_zip
+    zip = parse_canadian_zip if zip.nil?
+    @input.sub!(zip, '') if zip.present?
     zip
+  end
+
+  def parse_us_zip
+    us_zip_regex = /\b([0-9]{5})\b/.freeze
+    @input[us_zip_regex]
+  end
+
+  def parse_canadian_zip
+    can_zip_regex = /\b([abceghjklmnprstvxy]\d[abceghjklmnprstvwxyz]( )?\d[abceghjklmnprstvwxyz]\d)\b/.freeze
+    @input[can_zip_regex]
   end
 
   def parse_city_from(str)
@@ -94,31 +105,31 @@ class Traveller
 
   def check_three_word_states(tokens)
     token_str = tokens.join(' ')
-    three_word_states = ['district of columbia']
+    three_word_states = state_names_by_num_of_words(3)
     three_word_states.find { |s| s == token_str }
   end
 
   def check_two_word_states(tokens)
     token_str = tokens.join(' ')
-    two_word_states = ['new hampshire', 'new jersey', 'new mexico', 'new york', 'north carolina', 'north dakota', 'puerto rico', 'rhode island', 'south carolina', 'south dakota', 'west virginia' ]
+    two_word_states = state_names_by_num_of_words(2)
     two_word_states.find { |s| s == token_str }
   end
 
   def check_one_word_states(tokens)
     token_str = tokens.join(' ')
-    one_word_states = ['alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado', 'connecticut', 'delaware', 'florida', 'georgia', 'hawaii', 'idaho', 'illinois', 'indiana', 'iowa', 'kansas', 'kentucky', 'louisiana', 'maine', 'maryland', 'massachusetts', 'michigan', 'minnesota', 'mississippi', 'missouri', 'montana',  'nebraska', 'nevada', 'ohio', 'oklahoma', 'oregon', 'pennsylvania', 'tennessee', 'texas', 'utah', 'vermont', 'virginia', 'washington', 'wisconsin', 'wyoming']
+    one_word_states = state_names_by_num_of_words(1)
     one_word_states.find { |s| s == token_str }
   end
 
   def check_abbreviations(tokens)
     token_str = tokens.join(' ')
-    abbreviations = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'dc', 'fl', 'ga', 'hi', 'id', 'il', 'in', 'ia', 'ks', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'pr', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 'va', 'wa', 'wv', 'wi', 'wy']
+    abbreviations = us_state_abbreviations + province_abbreviations
     abbreviations.find { |s| s == token_str }
   end
 
   private
 
-  def state_to_abbreviation_mappings
+  def us_state_to_abbreviation_mappings
     { 'alabama' => 'al', 'alaska' => 'ak', 'america samoa' => 'as', 'arizona' => 'az', 'arkansas' => 'ar', 'california' => 'ca', 'colorado' => 'co', 'connecticut' => 'ct',
       'delaware' => 'de', 'district of columbia' => 'dc', 'micronesia1' => 'fm', 'florida' => 'fl', 'georgia' => 'ga', 'guam' => 'gu', 'hawaii' => 'hi', 'idaho' => 'id',
       'illinois' => 'il', 'indiana' => 'in', 'iowa' => 'ia', 'kansas' => 'ks', 'kentucky' => 'ky', 'louisiana' => 'la', 'maine' => 'me', 'marshall isands' => 'mh',
@@ -127,6 +138,39 @@ class Traveller
       'ohio' => 'oh', 'oklahoma' => 'ok', 'oregon' => 'or', 'palau' => 'pw', 'pennsylvania' => 'pa', 'puerto rico' => 'pr', 'rhode island' => 'ri', 'south carolina' => 'sc',
       'south dakota' => 'sd', 'tennessee' => 'tn', 'texas' => 'tx', 'utah' => 'ut', 'vermont' => 'vt', 'virgin island' => 'vi', 'virginia' => 'va', 'washington' => 'wa',
       'west virginia' => 'wv', 'wisconsin' => 'wi', 'wyoming' => 'wy' }
+  end
+
+  def province_to_abbreviation_mappings
+    {
+      'alberta' => 'ab', 'british columbia' => 'bc', 'manitoba' => 'mb', 'new brunswick' => 'nb', 'newfoundland & labrador' => 'nl', 'newfoundland and labrador' => 'nl',
+      'nova scotia' => 'ns', 'northwest territories' => 'nt', 'nunavut' => 'nu', 'ontario' => 'on',
+      'prince edward island' => 'pe', 'quebec' => 'qc', 'saskatchewan' => 'sk', 'yukon' => 'yt'
+    }
+  end
+
+  def us_state_abbreviations
+    us_state_to_abbreviation_mappings.values
+  end
+
+  def province_abbreviations
+    province_to_abbreviation_mappings.values
+  end
+
+  def us_state_names
+    us_state_to_abbreviation_mappings.keys
+  end
+
+  def province_names
+    province_to_abbreviation_mappings.keys
+  end
+
+  def state_names_by_num_of_words(number_of_words)
+    state_names = us_state_names + province_names
+    state_names.select { |state_name| state_name.split.size == number_of_words }
+  end
+
+  def state_to_abbreviation_mappings
+    us_state_to_abbreviation_mappings.merge(province_to_abbreviation_mappings)
   end
 
   def convert_abbreviation_to_state(abbreviation)
